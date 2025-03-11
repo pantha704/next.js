@@ -713,5 +713,6 @@
   "712": "`rspack.warnForEdgeRuntime` is not supported by the wasm bindings.",
   "713": "Server Action \"%s\" was not found on the server. \\nRead more: https://nextjs.org/docs/messages/failed-to-find-server-action",
   "714": "`unstable_isUnrecognizedActionError` can only be used on the client.",
-  "715": "This function cannot be used in the edge runtime"
+  "715": "This function cannot be used in the edge runtime",
+  "716": "Action handler not found in action module"
 }
