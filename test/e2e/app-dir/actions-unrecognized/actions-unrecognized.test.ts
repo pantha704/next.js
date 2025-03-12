@@ -92,7 +92,7 @@ describe('unrecognized server actions', () => {
     )
   }
 
-  describe('should 404 and log a warning when submitting a server action with an unrecognized ID', () => {
+  describe('should error and log a warning when submitting a server action with an unrecognized ID', () => {
     const testUnrecognizedActionSubmission = async ({
       formId,
       disableJavaScript,
@@ -148,18 +148,18 @@ describe('unrecognized server actions', () => {
         expect(response.status()).toBe(500)
         expect(response.headers()['content-type']).toStartWith('text/html')
         // In dev, the 500 page doesn't have any SSR'd html, so it won't show anything without JS.
-        if (!(isNextDev && disableJavaScript)) {
+        if (!isNextDev) {
           expect(await browser.elementByCss('body').text()).toContain(
             'Internal Server Error'
           )
         }
 
         if (!isNextDeploy) {
-          // FIXME: For an MPA action, the logs currently show the error thrown by React instead of our custom message with a link to a docs page.
           await retry(async () =>
-            expect(getLogs()).toInclude(
-              `Error: Could not find the module "decafc0ffeebad01" in the React Server Manifest. This is probably a bug in the React Server Components bundler`
-            )
+            expect(getLogs()).toInclude(outdent`
+              Failed to find Server Action "decafc0ffeebad01". This request might be from an older or newer deployment.
+              Read more: https://nextjs.org/docs/messages/failed-to-find-server-action
+            `)
           )
         }
       }
