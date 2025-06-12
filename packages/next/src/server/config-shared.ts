@@ -704,6 +704,11 @@ export interface ExperimentalConfig {
    * Enable new panel UI for the Next.js DevTools.
    */
   devtoolNewPanelUI?: boolean
+
+  /**
+   * Enable accessing root params via the `next/root-params` module.
+   */
+  rootParams?: boolean
 }
 
 export type ExportPathMap = {
