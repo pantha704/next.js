@@ -10,6 +10,9 @@ import {
   RSC_CONTENT_TYPE_HEADER,
   NEXT_ROUTER_STATE_TREE_HEADER,
   ACTION_HEADER,
+  NEXT_ROUTER_PREFETCH_HEADER,
+  NEXT_ROUTER_SEGMENT_PREFETCH_HEADER,
+  NEXT_URL,
 } from '../../client/components/app-router-headers'
 import {
   getAccessFallbackHTTPStatus,
@@ -52,6 +55,7 @@ import type { TemporaryReferenceSet } from 'react-server-dom-webpack/server.edge
 import { workUnitAsyncStorage } from '../app-render/work-unit-async-storage.external'
 import { executeRevalidates } from '../revalidation-utils'
 import { getRequestMeta } from '../request-meta'
+import { setCacheBustingSearchParam } from '../../client/components/router-reducer/set-cache-busting-search-param'
 
 function formDataFromSearchQueryString(query: string) {
   const searchParams = new URLSearchParams(query)
@@ -337,6 +341,23 @@ async function createRedirectRenderResult(
     forwardedHeaders.delete(ACTION_HEADER)
 
     try {
+      setCacheBustingSearchParam(fetchUrl, {
+        [NEXT_ROUTER_PREFETCH_HEADER]: forwardedHeaders.get(
+          NEXT_ROUTER_PREFETCH_HEADER
+        )
+          ? ('1' as const)
+          : undefined,
+        [NEXT_ROUTER_SEGMENT_PREFETCH_HEADER]:
+          forwardedHeaders.get(NEXT_ROUTER_SEGMENT_PREFETCH_HEADER) ??
+          undefined,
+        [NEXT_ROUTER_STATE_TREE_HEADER]:
+          forwardedHeaders.get(NEXT_ROUTER_STATE_TREE_HEADER) ?? undefined,
+        [NEXT_URL]: forwardedHeaders.get(NEXT_URL) ?? undefined,
+        [RSC_HEADER]: forwardedHeaders.get(RSC_HEADER)
+          ? ('1' as const)
+          : undefined,
+      })
+
       const response = await fetch(fetchUrl, {
         method: 'GET',
         headers: forwardedHeaders,

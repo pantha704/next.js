@@ -1,4 +1,7 @@
 import { nextTestSetup } from 'e2e-utils'
+import { NEXT_RSC_UNION_QUERY } from 'next/dist/client/components/app-router-headers'
+import { computeCacheBustingSearchParam } from 'next/dist/shared/lib/router/utils/cache-busting-search-param'
+
 describe('app dir - css - experimental inline css', () => {
   const { next, isNextDev } = nextTestSetup({
     files: __dirname,
@@ -16,13 +19,24 @@ describe('app dir - css - experimental inline css', () => {
     })
 
     it('should not return rsc payload with inlined style as a dynamic client nav', async () => {
+      const headers = {
+        rsc: '1',
+      }
+      const cacheBustingSearchParam = computeCacheBustingSearchParam(
+        null,
+        null,
+        null,
+        null,
+        '1'
+      )
       const rscPayload = await (
-        await next.fetch('/a', {
-          method: 'GET',
-          headers: {
-            rsc: '1',
-          },
-        })
+        await next.fetch(
+          `/a?${NEXT_RSC_UNION_QUERY}=${cacheBustingSearchParam}`,
+          {
+            method: 'GET',
+            headers,
+          }
+        )
       ).text()
 
       const style = 'font-size'
@@ -32,9 +46,12 @@ describe('app dir - css - experimental inline css', () => {
 
       expect(
         await (
-          await next.fetch('/a', {
-            method: 'GET',
-          })
+          await next.fetch(
+            `/a?${NEXT_RSC_UNION_QUERY}=${cacheBustingSearchParam}`,
+            {
+              method: 'GET',
+            }
+          )
         ).text()
       ).toContain(style) // sanity check that HTML has the style
     })

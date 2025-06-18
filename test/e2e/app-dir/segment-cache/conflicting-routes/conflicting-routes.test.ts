@@ -1,6 +1,5 @@
 import { nextTestSetup } from 'e2e-utils'
-
-import { computeCacheBustingSearchParam } from '../../../../../packages/next/src/shared/lib/router/utils/cache-busting-search-param'
+import { computeCacheBustingSearchParam } from 'next/dist/shared/lib/router/utils/cache-busting-search-param'
 
 describe('conflicting routes', () => {
   const { next, isNextDev, isNextDeploy } = nextTestSetup({
@@ -21,7 +20,13 @@ describe('conflicting routes', () => {
     const searchParams = new URLSearchParams(fetchUrl.search)
     searchParams.set(
       '_rsc',
-      computeCacheBustingSearchParam('1', segmentPath, undefined, undefined)
+      computeCacheBustingSearchParam(
+        '1',
+        segmentPath,
+        undefined,
+        undefined,
+        '1'
+      )
     )
     fetchUrl.search = searchParams.toString()
     return await next.fetch(fetchUrl.pathname + fetchUrl.search, {

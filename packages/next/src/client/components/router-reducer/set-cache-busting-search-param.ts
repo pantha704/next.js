@@ -7,6 +7,7 @@ import {
   NEXT_ROUTER_STATE_TREE_HEADER,
   NEXT_URL,
   NEXT_RSC_UNION_QUERY,
+  RSC_HEADER,
 } from '../app-router-headers'
 import type { RequestHeaders } from './fetch-server-response'
 
@@ -34,11 +35,37 @@ export const setCacheBustingSearchParam = (
     headers[NEXT_ROUTER_PREFETCH_HEADER],
     headers[NEXT_ROUTER_SEGMENT_PREFETCH_HEADER],
     headers[NEXT_ROUTER_STATE_TREE_HEADER],
-    headers[NEXT_URL]
+    headers[NEXT_URL],
+    headers[RSC_HEADER]
   )
   if (uniqueCacheKey === null) {
     // None of our custom request headers are present. We don't need to set a
     // cache-busting search param.
+    return
+  }
+
+  setCacheBustingSearchParamWithHash(url, uniqueCacheKey)
+}
+
+/**
+ * Sets a cache-busting search parameter on a URL using a provided hash value.
+ *
+ * This function performs the same logic as `setCacheBustingSearchParam` but accepts
+ * a pre-computed hash instead of computing it from headers.
+ *
+ * Example:
+ * URL before: https://example.com/path?query=1
+ * hash: "abc123"
+ * URL after: https://example.com/path?query=1&_rsc=abc123
+ *
+ * Note: This function mutates the input URL directly and does not return anything.
+ */
+export const setCacheBustingSearchParamWithHash = (
+  url: URL,
+  hash: string | null
+): void => {
+  if (!hash) {
+    // No hash provided, we don't need to set a cache-busting search param.
     return
   }
 
@@ -64,6 +91,6 @@ export const setCacheBustingSearchParam = (
     .split('&')
     .filter((pair) => pair && !pair.startsWith(`${NEXT_RSC_UNION_QUERY}=`))
 
-  pairs.push(`${NEXT_RSC_UNION_QUERY}=${uniqueCacheKey}`)
+  pairs.push(`${NEXT_RSC_UNION_QUERY}=${hash}`)
   url.search = pairs.length ? `?${pairs.join('&')}` : ''
 }
