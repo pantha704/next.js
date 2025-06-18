@@ -1645,7 +1645,7 @@ impl JsConfig {
 
 #[turbo_tasks::value]
 struct OutdatedConfigIssue {
-    path: ResolvedVc<FileSystemPath>,
+    path: FileSystemPath,
     old_name: RcStr,
     new_name: RcStr,
     description: RcStr,

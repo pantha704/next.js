@@ -709,7 +709,7 @@ impl AssetContext for ModuleAssetContext {
     #[turbo_tasks::function]
     async fn resolve_options(
         self: Vc<Self>,
-        origin_path: Vc<FileSystemPath>,
+        origin_path: FileSystemPath,
         _reference_type: ReferenceType,
     ) -> Result<Vc<ResolveOptions>> {
         let this = self.await?;
@@ -728,7 +728,7 @@ impl AssetContext for ModuleAssetContext {
     #[turbo_tasks::function]
     async fn resolve_asset(
         self: Vc<Self>,
-        origin_path: Vc<FileSystemPath>,
+        origin_path: FileSystemPath,
         request: Vc<Request>,
         resolve_options: Vc<ResolveOptions>,
         reference_type: ReferenceType,
@@ -944,20 +944,20 @@ impl AssetContext for ModuleAssetContext {
 }
 
 #[turbo_tasks::function]
-pub fn emit_with_completion(asset: Vc<Box<dyn OutputAsset>>, output_dir: Vc<FileSystemPath>) {
+pub fn emit_with_completion(asset: Vc<Box<dyn OutputAsset>>, output_dir: FileSystemPath) {
     let _ = emit_assets_aggregated(asset, output_dir);
 }
 
 #[turbo_tasks::function(operation)]
 pub fn emit_with_completion_operation(
     asset: ResolvedVc<Box<dyn OutputAsset>>,
-    output_dir: ResolvedVc<FileSystemPath>,
+    output_dir: FileSystemPath,
 ) -> Vc<()> {
     emit_with_completion(*asset, *output_dir)
 }
 
 #[turbo_tasks::function]
-fn emit_assets_aggregated(asset: Vc<Box<dyn OutputAsset>>, output_dir: Vc<FileSystemPath>) {
+fn emit_assets_aggregated(asset: Vc<Box<dyn OutputAsset>>, output_dir: FileSystemPath) {
     let aggregated = aggregate(asset);
     let _ = emit_aggregated_assets(aggregated, output_dir);
 }
@@ -965,7 +965,7 @@ fn emit_assets_aggregated(asset: Vc<Box<dyn OutputAsset>>, output_dir: Vc<FileSy
 #[turbo_tasks::function]
 async fn emit_aggregated_assets(
     aggregated: Vc<AggregatedGraph>,
-    output_dir: Vc<FileSystemPath>,
+    output_dir: FileSystemPath,
 ) -> Result<()> {
     match &*aggregated.content().await? {
         AggregatedGraphNodeContent::Asset(asset) => {
@@ -988,7 +988,7 @@ pub fn emit_asset(asset: Vc<Box<dyn OutputAsset>>) {
 #[turbo_tasks::function]
 pub async fn emit_asset_into_dir(
     asset: Vc<Box<dyn OutputAsset>>,
-    output_dir: Vc<FileSystemPath>,
+    output_dir: FileSystemPath,
 ) -> Result<()> {
     let dir = &*output_dir.await?;
     if asset.path().await?.is_inside_ref(dir) {
