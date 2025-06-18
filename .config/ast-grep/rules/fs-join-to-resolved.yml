@@ -1,8 +1,0 @@
-# yaml-language-server: $schema=https://raw.githubusercontent.com/ast-grep/ast-grep/main/schemas/rule.json
-
-id: fs-parent-resolve
-language: Rust
-rule:
-  pattern: '$EXPR.join($ARG).to_resolved().await?'
-
-fix: '$EXPR.join($ARG)?'
