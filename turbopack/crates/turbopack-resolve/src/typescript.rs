@@ -122,7 +122,7 @@ async fn resolve_extends(
     extends: &str,
     resolve_options: Vc<ResolveOptions>,
 ) -> Result<Vc<OptionSource>> {
-    let parent_dir = tsconfig.ident().path().parent();
+    let parent_dir = tsconfig.ident().path().await?.parent();
     let request = Request::parse_string(extends.into());
 
     // TS's resolution is weird, and has special behavior for different import
@@ -157,7 +157,7 @@ async fn resolve_extends(
         // All other types are treated as module imports, and potentially joined with
         // "tsconfig.json". This includes "relative" imports like '.' and '..'.
         _ => {
-            let mut result = resolve(parent_dir, ReferenceType::TypeScript(TypeScriptReferenceSubType::Undefined), request, resolve_options).first_source();
+            let mut result = resolve(parent_dir.clone(), ReferenceType::TypeScript(TypeScriptReferenceSubType::Undefined), request, resolve_options).first_source();
             if result.await?.is_none() {
                 let request = Request::parse_string(format!("{extends}/tsconfig").into());
                 result = resolve(parent_dir, ReferenceType::TypeScript(TypeScriptReferenceSubType::Undefined), request, resolve_options).first_source();
@@ -174,7 +174,7 @@ async fn resolve_extends_rooted_or_relative(
     path: &str,
 ) -> Result<Vc<OptionSource>> {
     let mut result = resolve(
-        lookup_path,
+        lookup_path.clone(),
         ReferenceType::TypeScript(TypeScriptReferenceSubType::Undefined),
         request,
         resolve_options,
@@ -187,7 +187,7 @@ async fn resolve_extends_rooted_or_relative(
     if !path.ends_with(".json") && result.await?.is_none() {
         let request = Request::parse_string(format!("{path}.json").into());
         result = resolve(
-            lookup_path,
+            lookup_path.clone(),
             ReferenceType::TypeScript(TypeScriptReferenceSubType::Undefined),
             request,
             resolve_options,
@@ -236,7 +236,7 @@ pub async fn tsconfig_resolve_options(
     let configs = read_tsconfigs(
         tsconfig.read(),
         ResolvedVc::upcast(FileSource::new(tsconfig).to_resolved().await?),
-        node_cjs_resolve_options(tsconfig.root()),
+        node_cjs_resolve_options(tsconfig.root().await?.clone_value()),
     )
     .await?;
 
@@ -261,13 +261,13 @@ pub async fn tsconfig_resolve_options(
         if let FileJsonContent::Content(json) = &*content.await?
             && let JsonValue::Object(paths) = &json["compilerOptions"]["paths"]
         {
-            let mut context_dir = source.ident().path().parent();
+            let mut context_dir = source.ident().path().await?.parent();
             if let Some(base_url) = json["compilerOptions"]["baseUrl"].as_str()
-                && let Some(new_context) = *context_dir.try_join(base_url.into()).await?
+                && let Some(new_context) = context_dir.try_join(base_url.into())?
             {
-                context_dir = *new_context;
+                context_dir = new_context;
             };
-            let context_dir = context_dir.to_resolved().await?;
+            let context_dir = context_dir.clone();
             for (key, value) in paths.iter() {
                 if let JsonValue::Array(vec) = value {
                     let entries = vec
@@ -350,13 +350,13 @@ pub async fn apply_tsconfig_resolve_options(
 ) -> Result<Vc<ResolveOptions>> {
     let tsconfig_resolve_options = tsconfig_resolve_options.await?;
     let mut resolve_options = resolve_options.owned().await?;
-    if let Some(base_url) = tsconfig_resolve_options.base_url {
+    if let Some(base_url) = &tsconfig_resolve_options.base_url {
         // We want to resolve in `compilerOptions.baseUrl` first, then in other
         // locations as a fallback.
         resolve_options.modules.insert(
             0,
             ResolveModules::Path {
-                dir: base_url,
+                dir: base_url.clone(),
                 // tsconfig basepath doesn't apply to json requests
                 excluded_extensions: ResolvedVc::cell(fxindexset![rcstr!(".json")]),
             },
@@ -384,7 +384,7 @@ pub async fn type_resolve(
     request: Vc<Request>,
 ) -> Result<Vc<ModuleResolveResult>> {
     let ty = ReferenceType::TypeScript(TypeScriptReferenceSubType::Undefined);
-    let context_path = origin.origin_path().parent();
+    let context_path = origin.origin_path().await?.parent();
     let options = origin.resolve_options(ty.clone());
     let options = apply_typescript_types_options(options);
     let types_request = if let Request::Module {

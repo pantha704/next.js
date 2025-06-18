@@ -94,7 +94,7 @@ pub async fn esm_resolve(
     issue_source: Option<IssueSource>,
 ) -> Result<Vc<ModuleResolveResult>> {
     let ty = ReferenceType::EcmaScriptModules(ty);
-    let options = apply_esm_specific_options(origin.resolve_options(ty.clone()), ty.clone())
+    let options = apply_esm_specific_options(origin.resolve_options(ty.clone()).await?, ty.clone())
         .resolve()
         .await?;
     specific_resolve(origin, request, options, ty, is_optional, issue_source).await
@@ -109,7 +109,7 @@ pub async fn cjs_resolve(
 ) -> Result<Vc<ModuleResolveResult>> {
     // TODO pass CommonJsReferenceSubType
     let ty = ReferenceType::CommonJs(CommonJsReferenceSubType::Undefined);
-    let options = apply_cjs_specific_options(origin.resolve_options(ty.clone()))
+    let options = apply_cjs_specific_options(origin.resolve_options(ty.clone()).await?)
         .resolve()
         .await?;
     specific_resolve(origin, request, options, ty, is_optional, issue_source).await
@@ -124,15 +124,20 @@ pub async fn cjs_resolve_source(
 ) -> Result<Vc<ResolveResult>> {
     // TODO pass CommonJsReferenceSubType
     let ty = ReferenceType::CommonJs(CommonJsReferenceSubType::Undefined);
-    let options = apply_cjs_specific_options(origin.resolve_options(ty.clone()))
+    let options = apply_cjs_specific_options(origin.resolve_options(ty.clone()).await?)
         .resolve()
         .await?;
-    let result = resolve(origin.origin_path().parent(), ty.clone(), *request, options);
+    let result = resolve(
+        origin.origin_path().await?.parent(),
+        ty.clone(),
+        *request,
+        options,
+    );
 
     handle_resolve_source_error(
         result,
         ty,
-        origin.origin_path(),
+        origin.origin_path().await?.clone_value(),
         *request,
         options,
         is_optional,
@@ -156,7 +161,7 @@ async fn specific_resolve(
     handle_resolve_error(
         result,
         reference_type,
-        origin.origin_path(),
+        origin.origin_path().await?.clone_value(),
         request,
         options,
         is_optional,

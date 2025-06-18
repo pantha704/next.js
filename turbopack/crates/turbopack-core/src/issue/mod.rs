@@ -1038,10 +1038,7 @@ where
                     ItemIssueProcessingPath::resolved_cell(ItemIssueProcessingPath(
                         Some(IssueProcessingPathItem::resolved_cell(
                             IssueProcessingPathItem {
-                                file_path: match file_path.into() {
-                                    Some(path) => Some(path),
-                                    None => None,
-                                },
+                                file_path: file_path.into(),
                                 description: ResolvedVc::cell(RcStr::from(description.into())),
                             },
                         )),
@@ -1071,10 +1068,7 @@ where
                     ItemIssueProcessingPath::resolved_cell(ItemIssueProcessingPath(
                         Some(IssueProcessingPathItem::resolved_cell(
                             IssueProcessingPathItem {
-                                file_path: match file_path.into() {
-                                    Some(path) => Some(path),
-                                    None => None,
-                                },
+                                file_path: file_path.into(),
                                 description: ResolvedVc::cell(RcStr::from(description.into())),
                             },
                         )),

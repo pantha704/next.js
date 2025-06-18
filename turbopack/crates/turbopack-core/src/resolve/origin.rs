@@ -47,10 +47,10 @@ pub trait ResolveOriginExt: Send {
     ) -> impl Future<Output = Result<Vc<ModuleResolveResult>>> + Send;
 
     /// Get the resolve options that apply for this origin.
-    async fn resolve_options(
+    fn resolve_options(
         self: Vc<Self>,
         reference_type: ReferenceType,
-    ) -> Result<Vc<ResolveOptions>>;
+    ) -> impl std::future::Future<Output = Result<Vc<ResolveOptions>>> + Send;
 
     /// Adds a transition that is used for resolved assets.
     fn with_transition(self: ResolvedVc<Self>, transition: RcStr) -> Vc<Box<dyn ResolveOrigin>>;

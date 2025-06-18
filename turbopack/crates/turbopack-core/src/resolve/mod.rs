@@ -1314,7 +1314,7 @@ pub async fn find_context_file(
 ) -> Result<Vc<FindContextFileResult>> {
     let mut refs = Vec::new();
     for name in &*names.await? {
-        let fs_path = lookup_path.join(&name)?;
+        let fs_path = lookup_path.join(name)?;
         if let Some(fs_path) = exists(fs_path, &mut refs).await? {
             return Ok(FindContextFileResult::Found(fs_path, refs).cell());
         }
@@ -1362,7 +1362,7 @@ pub async fn find_context_file_or_package_key(
         return Ok(FindContextFileResult::Found(package_json_path, refs).into());
     }
     for name in &*names.await? {
-        let fs_path = lookup_path.join(&name)?;
+        let fs_path = lookup_path.join(name)?;
         if let Some(fs_path) = exists(fs_path, &mut refs).await? {
             return Ok(FindContextFileResult::Found(fs_path, refs).into());
         }
@@ -1419,7 +1419,7 @@ async fn find_package(
                 let root = root_vc.clone();
                 while lookup_path_value.is_inside_ref(&root) {
                     for name in names.iter() {
-                        let fs_path = lookup_path.join(&name)?;
+                        let fs_path = lookup_path.join(name)?;
                         if let Some(fs_path) = dir_exists(fs_path, &mut affecting_sources).await? {
                             let fs_path = fs_path.join(&package_name.clone())?;
                             if let Some(fs_path) =

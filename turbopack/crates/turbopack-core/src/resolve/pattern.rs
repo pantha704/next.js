@@ -1386,9 +1386,9 @@ pub async fn read_matches(
                     if last_segment.is_empty() {
                         // This means we don't have a last segment, so we just have a directory
                         let joined = if force_in_lookup_dir {
-                            lookup_dir.try_join_inside(parent_path.into())?
+                            lookup_dir.try_join_inside(parent_path)?
                         } else {
-                            lookup_dir.try_join(parent_path.into())?
+                            lookup_dir.try_join(parent_path)?
                         };
                         let Some(fs_path) = joined else {
                             continue;
@@ -1404,9 +1404,9 @@ pub async fn read_matches(
                         Entry::Occupied(e) => Some(e.into_mut()),
                         Entry::Vacant(e) => {
                             let path_option = if force_in_lookup_dir {
-                                lookup_dir.try_join_inside(parent_path.into())?
+                                lookup_dir.try_join_inside(parent_path)?
                             } else {
-                                lookup_dir.try_join(parent_path.into())?
+                                lookup_dir.try_join(parent_path)?
                             };
                             if let Some(path) = path_option {
                                 Some(e.insert((path.raw_read_dir().await?, path)))
@@ -1430,7 +1430,7 @@ pub async fn read_matches(
                                 index,
                                 PatternMatch::File(
                                     concat(&prefix, str).into(),
-                                    parent_fs_path.join(last_segment.into())?,
+                                    parent_fs_path.join(last_segment)?,
                                 ),
                             ));
                         }
@@ -1438,11 +1438,11 @@ pub async fn read_matches(
                             index,
                             PatternMatch::Directory(
                                 concat(&prefix, str).into(),
-                                parent_fs_path.join(last_segment.into())?,
+                                parent_fs_path.join(last_segment)?,
                             ),
                         )),
                         RawDirectoryEntry::Symlink => {
-                            let fs_path = parent_fs_path.join(last_segment.into())?;
+                            let fs_path = parent_fs_path.join(last_segment)?;
                             let LinkContent::Link { link_type, .. } = &*fs_path.read_link().await?
                             else {
                                 continue;
@@ -1460,9 +1460,9 @@ pub async fn read_matches(
                     let subpath = &str[..=str.rfind('/').unwrap()];
                     if handled.insert(subpath) {
                         let joined = if force_in_lookup_dir {
-                            lookup_dir.try_join_inside(subpath.into())?
+                            lookup_dir.try_join_inside(subpath)?
                         } else {
-                            lookup_dir.try_join(subpath.into())?
+                            lookup_dir.try_join(subpath)?
                         };
                         let Some(fs_path) = joined else {
                             continue;
@@ -1583,7 +1583,7 @@ pub async fn read_matches(
                                 prefix.push_str(key);
                                 // {prefix}{key}
                                 if let Some(pos) = pat.match_position(&prefix) {
-                                    let path = lookup_dir.join(&key)?;
+                                    let path = lookup_dir.join(key)?;
                                     results.push((
                                         pos,
                                         PatternMatch::File(prefix.clone().into(), path),
@@ -1599,7 +1599,7 @@ pub async fn read_matches(
                                     prefix.pop();
                                 }
                                 if let Some(pos) = pat.match_position(&prefix) {
-                                    let path = lookup_dir.join(&key)?;
+                                    let path = lookup_dir.join(key)?;
                                     results.push((
                                         pos,
                                         PatternMatch::Directory(prefix.clone().into(), path),
@@ -1608,14 +1608,14 @@ pub async fn read_matches(
                                 prefix.push('/');
                                 // {prefix}{key}/
                                 if let Some(pos) = pat.match_position(&prefix) {
-                                    let path = lookup_dir.join(&key)?;
+                                    let path = lookup_dir.join(key)?;
                                     results.push((
                                         pos,
                                         PatternMatch::Directory(prefix.clone().into(), path),
                                     ));
                                 }
                                 if let Some(pos) = pat.could_match_position(&prefix) {
-                                    let path = lookup_dir.join(&key)?;
+                                    let path = lookup_dir.join(key)?;
                                     nested.push((
                                         pos,
                                         read_matches(path, prefix.clone().into(), true, pattern),
