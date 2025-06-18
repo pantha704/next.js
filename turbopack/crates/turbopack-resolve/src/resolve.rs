@@ -88,7 +88,7 @@ async fn base_resolve_options(
     resolve_path: FileSystemPath,
     options_context: Vc<ResolveOptionsContext>,
 ) -> Result<Vc<ResolveOptions>> {
-    let parent = resolve_path.parent().resolve().await?;
+    let parent = resolve_path.parent();
     if parent != resolve_path {
         return Ok(base_resolve_options(parent, options_context));
     }

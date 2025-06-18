@@ -133,7 +133,7 @@ impl Module for TsConfigModuleAsset {
                 types
             } else {
                 let mut all_types = Vec::new();
-                let mut current = self.source.ident().path().parent().resolve().await?;
+                let mut current = self.source.ident().path().parent();
                 loop {
                     if let DirectoryContent::Entries(entries) = &*current
                         .join(rcstr!("node_modules/@types"))
@@ -148,7 +148,7 @@ impl Module for TsConfigModuleAsset {
                             }
                         }));
                     }
-                    let parent = current.parent().resolve().await?;
+                    let parent = current.parent();
                     if parent == current {
                         break;
                     }

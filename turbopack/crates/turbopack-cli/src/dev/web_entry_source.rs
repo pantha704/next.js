@@ -45,8 +45,8 @@ pub async fn get_client_chunking_context(
             server_root,
             server_root_to_root_path,
             server_root,
-            server_root.join(rcstr!("/_chunks")).to_resolved().await?,
-            server_root.join(rcstr!("/_assets")).to_resolved().await?,
+            server_root.join(rcstr!("/_chunks"))?,
+            server_root.join(rcstr!("/_assets"))?,
             environment,
             RuntimeType::Development,
         )
@@ -76,7 +76,7 @@ pub async fn get_client_runtime_entries(
         runtime_entries.push(
             RuntimeEntry::Request(
                 request.to_resolved().await?,
-                project_path.join(rcstr!("_")).to_resolved().await?,
+                project_path.join(rcstr!("_"))?,
             )
             .resolved_cell(),
         )
@@ -196,7 +196,7 @@ pub async fn create_web_entry_source(
         .await?;
 
     let entry_asset = Vc::upcast(DevHtmlAsset::new(
-        server_root.join(rcstr!("index.html")).to_resolved().await?,
+        server_root.join(rcstr!("index.html"))?,
         entries,
     ));
 

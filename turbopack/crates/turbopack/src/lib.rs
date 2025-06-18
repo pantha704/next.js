@@ -720,7 +720,7 @@ impl AssetContext for ModuleAssetContext {
         };
         // TODO move `apply_commonjs/esm_resolve_options` etc. to here
         Ok(resolve_options(
-            origin_path.parent().resolve().await?,
+            origin_path.parent(),
             *module_asset_context.await?.resolve_options_context,
         ))
     }
@@ -733,7 +733,7 @@ impl AssetContext for ModuleAssetContext {
         resolve_options: Vc<ResolveOptions>,
         reference_type: ReferenceType,
     ) -> Result<Vc<ModuleResolveResult>> {
-        let context_path = origin_path.parent().resolve().await?;
+        let context_path = origin_path.parent();
 
         let result = resolve(
             context_path,

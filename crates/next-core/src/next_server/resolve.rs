@@ -276,17 +276,10 @@ impl AfterResolvePlugin for ExternalCjsModulesResolvePlugin {
         };
 
         if result_from_original_location != result {
-            let package_json_file = find_context_file(
-                result.ident().path().parent().resolve().await?,
-                package_json(),
-            );
+            let package_json_file =
+                find_context_file(result.ident().path().parent(), package_json());
             let package_json_from_original_location = find_context_file(
-                result_from_original_location
-                    .ident()
-                    .path()
-                    .parent()
-                    .resolve()
-                    .await?,
+                result_from_original_location.ident().path().parent(),
                 package_json(),
             );
             let FindContextFileResult::Found(package_json_file, _) = *package_json_file.await?

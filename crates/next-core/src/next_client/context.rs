@@ -438,10 +438,7 @@ pub async fn get_client_chunking_context(
         client_root,
         client_root_to_root_path,
         client_root,
-        client_root
-            .join(rcstr!("static/chunks"))
-            .to_resolved()
-            .await?,
+        client_root.join(rcstr!("static/chunks"))?,
         get_client_assets_path(*client_root).to_resolved().await?,
         environment,
         next_mode.runtime_type(),
@@ -519,7 +516,7 @@ pub async fn get_client_runtime_entries(
             runtime_entries.push(
                 RuntimeEntry::Request(
                     request.to_resolved().await?,
-                    project_root.join(rcstr!("_")).to_resolved().await?,
+                    project_root.join(rcstr!("_"))?,
                 )
                 .resolved_cell(),
             )
@@ -534,7 +531,7 @@ pub async fn get_client_runtime_entries(
                 )))
                 .to_resolved()
                 .await?,
-                project_root.join(rcstr!("_")).to_resolved().await?,
+                project_root.join(rcstr!("_"))?,
             )
             .resolved_cell(),
         );

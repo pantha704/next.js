@@ -206,8 +206,8 @@ async fn build_internal(
         .replace(MAIN_SEPARATOR, "/")
         .into();
     let root_path = project_fs.root().to_resolved().await?;
-    let project_path = root_path.join(project_relative).to_resolved().await?;
-    let build_output_root = output_fs.root().join(rcstr!("dist")).to_resolved().await?;
+    let project_path = root_path.join(project_relative)?;
+    let build_output_root = output_fs.root().join(rcstr!("dist"))?;
 
     let node_env = NodeEnv::Production.cell();
 

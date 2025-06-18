@@ -312,8 +312,8 @@ async fn run_test_operation(prepared_test: ResolvedVc<PreparedTest>) -> Result<V
     let jest_entry_path = tests_path.join(rcstr!("js/jest-entry.ts"));
     let test_path = project_path.join(rcstr!("input/index.js"));
 
-    let chunk_root_path = path.join(rcstr!("output")).to_resolved().await?;
-    let static_root_path = path.join(rcstr!("static")).to_resolved().await?;
+    let chunk_root_path = path.join(rcstr!("output"))?;
+    let static_root_path = path.join(rcstr!("static"))?;
 
     let chunk_root_path_in_root_path_offset = project_path
         .join(rcstr!("output"))

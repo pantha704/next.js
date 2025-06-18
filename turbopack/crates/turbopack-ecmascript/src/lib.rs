@@ -622,15 +622,7 @@ impl EcmascriptModuleAsset {
             SpecifiedModuleType::Automatic => {}
         }
 
-        determine_module_type_for_directory(
-            self.origin_path()
-                .resolve()
-                .await?
-                .parent()
-                .resolve()
-                .await?,
-        )
-        .await
+        determine_module_type_for_directory(self.origin_path().resolve().await?.parent()).await
     }
 }
 

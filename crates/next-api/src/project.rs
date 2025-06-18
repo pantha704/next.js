@@ -780,8 +780,8 @@ impl Project {
                 node_root,
                 self.node_root_to_root_path().owned().await?,
                 node_root,
-                node_root.join(rcstr!("build/chunks")).to_resolved().await?,
-                node_root.join(rcstr!("build/assets")).to_resolved().await?,
+                node_root.join(rcstr!("build/chunks"))?,
+                node_root.join(rcstr!("build/assets"))?,
                 node_build_environment().to_resolved().await?,
                 next_mode.runtime_type(),
             )

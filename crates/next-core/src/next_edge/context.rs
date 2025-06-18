@@ -226,18 +226,15 @@ pub async fn get_edge_chunking_context_with_client_assets(
     turbo_source_maps: Vc<bool>,
     no_mangling: Vc<bool>,
 ) -> Result<Vc<Box<dyn ChunkingContext>>> {
-    let output_root = node_root.join(rcstr!("server/edge")).to_resolved().await?;
+    let output_root = node_root.join(rcstr!("server/edge"))?;
     let next_mode = mode.await?;
     let mut builder = BrowserChunkingContext::builder(
         root_path,
         output_root,
         output_root_to_root_path,
         client_root,
-        output_root.join(rcstr!("chunks/ssr")).to_resolved().await?,
-        client_root
-            .join(rcstr!("static/media"))
-            .to_resolved()
-            .await?,
+        output_root.join(rcstr!("chunks/ssr"))?,
+        client_root.join(rcstr!("static/media"))?,
         environment,
         next_mode.runtime_type(),
     )
@@ -289,15 +286,15 @@ pub async fn get_edge_chunking_context(
     turbo_source_maps: Vc<bool>,
     no_mangling: Vc<bool>,
 ) -> Result<Vc<Box<dyn ChunkingContext>>> {
-    let output_root = node_root.join(rcstr!("server/edge")).to_resolved().await?;
+    let output_root = node_root.join(rcstr!("server/edge"))?;
     let next_mode = mode.await?;
     let mut builder = BrowserChunkingContext::builder(
         root_path,
         output_root,
         node_root_to_root_path,
         output_root,
-        output_root.join(rcstr!("chunks")).to_resolved().await?,
-        output_root.join(rcstr!("assets")).to_resolved().await?,
+        output_root.join(rcstr!("chunks"))?,
+        output_root.join(rcstr!("assets"))?,
         environment,
         next_mode.runtime_type(),
     )

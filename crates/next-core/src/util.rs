@@ -124,10 +124,7 @@ pub async fn foreign_code_context_condition(
     // of the `node_modules` specific resolve options (the template files are
     // technically node module files).
     let not_next_template_dir = ContextCondition::not(ContextCondition::InPath(
-        get_next_package(*project_path)
-            .join(NEXT_TEMPLATE_PATH.into())
-            .to_resolved()
-            .await?,
+        get_next_package(*project_path).join(NEXT_TEMPLATE_PATH.into())?,
     ));
 
     let result = ContextCondition::all(vec![

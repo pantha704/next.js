@@ -379,11 +379,7 @@ async fn get_directory_tree_internal(
                 let basename = file_name
                     .rsplit_once('.')
                     .map_or(file_name, |(basename, _)| basename);
-                let alt_path = file
-                    .parent()
-                    .join(format!("{basename}.alt.txt").into())
-                    .to_resolved()
-                    .await?;
+                let alt_path = file.parent().join(format!("{basename}.alt.txt").into())?;
                 let alt_path = matches!(&*alt_path.get_type().await?, FileSystemEntryType::File)
                     .then_some(alt_path);
 
@@ -910,25 +906,19 @@ async fn directory_tree_to_loader_tree_internal(
         if modules.not_found.is_none() {
             modules.not_found = Some(
                 get_next_package(app_dir)
-                    .join(rcstr!("dist/client/components/not-found-error.js"))
-                    .to_resolved()
-                    .await?,
+                    .join(rcstr!("dist/client/components/not-found-error.js"))?,
             );
         }
         if modules.forbidden.is_none() {
             modules.forbidden = Some(
                 get_next_package(app_dir)
-                    .join(rcstr!("dist/client/components/forbidden-error.js"))
-                    .to_resolved()
-                    .await?,
+                    .join(rcstr!("dist/client/components/forbidden-error.js"))?,
             );
         }
         if modules.unauthorized.is_none() {
             modules.unauthorized = Some(
                 get_next_package(app_dir)
-                    .join(rcstr!("dist/client/components/unauthorized-error.js"))
-                    .to_resolved()
-                    .await?,
+                    .join(rcstr!("dist/client/components/unauthorized-error.js"))?,
             );
         }
     }
@@ -1130,9 +1120,7 @@ async fn default_route_tree(
             AppDirModules {
                 default: Some(
                     get_next_package(app_dir)
-                        .join(rcstr!("dist/client/components/parallel-route-default.js"))
-                        .to_resolved()
-                        .await?,
+                        .join(rcstr!("dist/client/components/parallel-route-default.js"))?,
                 ),
                 ..Default::default()
             }
@@ -1275,34 +1263,26 @@ async fn directory_tree_to_entrypoints_internal_untraced(
         if modules.layout.is_none() {
             modules.layout = Some(
                 get_next_package(*app_dir)
-                    .join(rcstr!("dist/client/components/default-layout.js"))
-                    .to_resolved()
-                    .await?,
+                    .join(rcstr!("dist/client/components/default-layout.js"))?,
             );
         }
 
         if modules.not_found.is_none() {
             modules.not_found = Some(
                 get_next_package(*app_dir)
-                    .join(rcstr!("dist/client/components/not-found-error.js"))
-                    .to_resolved()
-                    .await?,
+                    .join(rcstr!("dist/client/components/not-found-error.js"))?,
             );
         }
         if modules.forbidden.is_none() {
             modules.forbidden = Some(
                 get_next_package(*app_dir)
-                    .join(rcstr!("dist/client/components/forbidden-error.js"))
-                    .to_resolved()
-                    .await?,
+                    .join(rcstr!("dist/client/components/forbidden-error.js"))?,
             );
         }
         if modules.unauthorized.is_none() {
             modules.unauthorized = Some(
                 get_next_package(*app_dir)
-                    .join(rcstr!("dist/client/components/unauthorized-error.js"))
-                    .to_resolved()
-                    .await?,
+                    .join(rcstr!("dist/client/components/unauthorized-error.js"))?,
             );
         }
 

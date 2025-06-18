@@ -267,14 +267,10 @@ async fn source(
     let output_fs = output_fs(project_dir);
     let fs: Vc<Box<dyn FileSystem>> = project_fs(root_dir, /* watch= */ true);
     let root_path = fs.root().to_resolved().await?;
-    let project_path = root_path.join(project_relative).to_resolved().await?;
+    let project_path = root_path.join(project_relative)?;
 
     let env = load_env(*root_path);
-    let build_output_root = output_fs
-        .root()
-        .join(rcstr!(".turbopack/build"))
-        .to_resolved()
-        .await?;
+    let build_output_root = output_fs.root().join(rcstr!(".turbopack/build"))?;
 
     let build_output_root_to_root_path = project_path
         .join(rcstr!(".turbopack/build"))
@@ -288,14 +284,8 @@ async fn source(
         build_output_root,
         build_output_root_to_root_path,
         build_output_root,
-        build_output_root
-            .join(rcstr!("chunks"))
-            .to_resolved()
-            .await?,
-        build_output_root
-            .join(rcstr!("assets"))
-            .to_resolved()
-            .await?,
+        build_output_root.join(rcstr!("chunks"))?,
+        build_output_root.join(rcstr!("assets"))?,
         node_build_environment().to_resolved().await?,
         RuntimeType::Development,
     )

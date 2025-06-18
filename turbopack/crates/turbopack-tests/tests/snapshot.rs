@@ -216,10 +216,7 @@ async fn run_test_operation(resource: RcStr) -> Result<Vc<FileSystemPath>> {
 
     let relative_path = test_path.strip_prefix(&*REPO_ROOT)?;
     let relative_path: RcStr = sys_to_unix(relative_path.to_str().unwrap()).into();
-    let project_path = project_root
-        .join(relative_path.clone())
-        .to_resolved()
-        .await?;
+    let project_path = project_root.join(relative_path.clone())?;
 
     let project_path_to_project_root = project_path
         .await?
@@ -347,8 +344,8 @@ async fn run_test_operation(resource: RcStr) -> Result<Vc<FileSystemPath>> {
         .await?
         .map(|asset| EvaluatableAssets::one(asset.to_evaluatable(asset_context)));
 
-    let chunk_root_path = project_path.join(rcstr!("output")).to_resolved().await?;
-    let static_root_path = project_path.join(rcstr!("static")).to_resolved().await?;
+    let chunk_root_path = project_path.join(rcstr!("output"))?;
+    let static_root_path = project_path.join(rcstr!("static"))?;
 
     let chunking_context: Vc<Box<dyn ChunkingContext>> = match options.runtime {
         Runtime::Browser => Vc::upcast(

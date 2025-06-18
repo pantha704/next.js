@@ -127,12 +127,7 @@ pub async fn cjs_resolve_source(
     let options = apply_cjs_specific_options(origin.resolve_options(ty.clone()))
         .resolve()
         .await?;
-    let result = resolve(
-        origin.origin_path().parent().resolve().await?,
-        ty.clone(),
-        *request,
-        options,
-    );
+    let result = resolve(origin.origin_path().parent(), ty.clone(), *request, options);
 
     handle_resolve_source_error(
         result,
