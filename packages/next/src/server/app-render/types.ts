@@ -304,8 +304,8 @@ export type InitialRSCPayload = {
   f: FlightDataPath[]
   /** missingSlots */
   m: Set<string> | undefined
-  /** GlobalError */
-  G: [React.ComponentType<any>, React.ReactNode | undefined]
+  /** GlobalError: [Component, styles, modulePath] */
+  G: [React.ComponentType<any>, React.ReactNode | undefined, string | undefined]
   /** postponed */
   s: boolean
   /** prerendered */

@@ -2,13 +2,13 @@ import { PureComponent } from 'react'
 import { dispatcher } from 'next/dist/compiled/next-devtools'
 import { RuntimeErrorHandler } from '../../../client/dev/runtime-error-handler'
 import { ErrorBoundary } from '../../../client/components/error-boundary'
-import DefaultGlobalError, {
-  type GlobalErrorComponent,
-} from '../../../client/components/global-error'
+import DefaultGlobalError from '../../../client/components/global-error'
+import { SegmentViewNode } from './segment-explorer'
+import type { GlobalErrorState } from '../../../client/components/app-router-instance'
 
 type AppDevOverlayErrorBoundaryProps = {
   children: React.ReactNode
-  globalError: [GlobalErrorComponent, React.ReactNode]
+  globalError: GlobalErrorState
 }
 
 type AppDevOverlayErrorBoundaryState = {
@@ -16,10 +16,10 @@ type AppDevOverlayErrorBoundaryState = {
 }
 
 function ErroredHtml({
-  globalError: [GlobalError, globalErrorStyles],
+  globalError: [GlobalError, globalErrorStyles, globalErrorModulePath],
   error,
 }: {
-  globalError: [GlobalErrorComponent, React.ReactNode]
+  globalError: GlobalErrorState
   error: unknown
 }) {
   if (!error) {
@@ -30,10 +30,17 @@ function ErroredHtml({
       </html>
     )
   }
+  const globalErrorElement = <GlobalError error={error} />
   return (
     <ErrorBoundary errorComponent={DefaultGlobalError}>
       {globalErrorStyles}
-      <GlobalError error={error} />
+      {process.env.__NEXT_DEVTOOL_SEGMENT_EXPLORER && globalErrorModulePath ? (
+        <SegmentViewNode type="global-error" pagePath={globalErrorModulePath}>
+          {globalErrorElement}
+        </SegmentViewNode>
+      ) : (
+        globalErrorElement
+      )}
     </ErrorBoundary>
   )
 }

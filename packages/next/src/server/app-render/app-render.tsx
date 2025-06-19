@@ -873,7 +873,8 @@ async function getRSCPayload(
     </React.Fragment>
   )
 
-  const globalErrorStyles = await getGlobalErrorStyles(tree, ctx)
+  const { styles: globalErrorStyles, modulePath: globalErrorModulePath } =
+    await parseGlobalErrorModuleInfo(tree, ctx)
 
   // Assume the head we're rendering contains only partial data if PPR is
   // enabled and this is a statically generated response. This is used by the
@@ -901,7 +902,7 @@ async function getRSCPayload(
       ] as FlightDataPath,
     ],
     m: missingSlots,
-    G: [GlobalError, globalErrorStyles],
+    G: [GlobalError, globalErrorStyles, globalErrorModulePath],
     s: typeof ctx.renderOpts.postponed === 'string',
     S: workStore.isStaticGeneration,
   }
@@ -1001,7 +1002,8 @@ async function getErrorRSCPayload(
     false,
   ]
 
-  const globalErrorStyles = await getGlobalErrorStyles(tree, ctx)
+  const { styles: globalErrorStyles, modulePath: globalErrorModulePath } =
+    await parseGlobalErrorModuleInfo(tree, ctx)
 
   const isPossiblyPartialHead =
     workStore.isStaticGeneration &&
@@ -1021,7 +1023,7 @@ async function getErrorRSCPayload(
         isPossiblyPartialHead,
       ] as FlightDataPath,
     ],
-    G: [GlobalError, globalErrorStyles],
+    G: [GlobalError, globalErrorStyles, globalErrorModulePath],
     s: typeof ctx.renderOpts.postponed === 'string',
     S: workStore.isStaticGeneration,
   } satisfies InitialRSCPayload
@@ -1092,7 +1094,7 @@ function App<T>({
       <ServerInsertedHTMLProvider>
         <AppRouter
           actionQueue={actionQueue}
-          globalErrorComponentAndStyles={response.G}
+          globalErrorState={response.G}
           assetPrefix={response.p}
           gracefullyDegrade={gracefullyDegrade}
         />
@@ -1149,7 +1151,7 @@ function ErrorApp<T>({
     <ServerInsertedHTMLProvider>
       <AppRouter
         actionQueue={actionQueue}
-        globalErrorComponentAndStyles={response.G}
+        globalErrorState={response.G}
         assetPrefix={response.p}
         gracefullyDegrade={gracefullyDegrade}
       />
@@ -3900,15 +3902,19 @@ async function prerenderToStream(
   }
 }
 
-const getGlobalErrorStyles = async (
+const parseGlobalErrorModuleInfo = async (
   tree: LoaderTree,
   ctx: AppRenderContext
-): Promise<React.ReactNode | undefined> => {
+): Promise<{
+  styles: React.ReactNode | undefined
+  modulePath: string | undefined
+}> => {
   const {
     modules: { 'global-error': globalErrorModule },
   } = parseLoaderTree(tree)
 
   let globalErrorStyles
+  let globalErrorModulePath: string | undefined
   if (globalErrorModule) {
     const [, styles] = await createComponentStylesAndScripts({
       ctx,
@@ -3919,8 +3925,15 @@ const getGlobalErrorStyles = async (
     })
     globalErrorStyles = styles
   }
+  if (ctx.renderOpts.dev) {
+    // Fallback to the default global error module path
+    globalErrorModulePath = globalErrorModule?.[1] || 'global-error.js'
+  }
 
-  return globalErrorStyles
+  return {
+    styles: globalErrorStyles,
+    modulePath: globalErrorModulePath,
+  }
 }
 
 async function collectSegmentData(
