@@ -29,14 +29,7 @@ export function createRootLevelDevOverlayElement(reactEl: React.ReactElement) {
   socket.addEventListener('message', handler)
 
   return (
-    <AppDevOverlayErrorBoundary
-      globalError={[
-        DefaultGlobalError,
-        null,
-        // hardcoded the built-in global error module path
-        'global-error.js',
-      ]}
-    >
+    <AppDevOverlayErrorBoundary globalError={[DefaultGlobalError, null]}>
       {reactEl}
     </AppDevOverlayErrorBoundary>
   )
