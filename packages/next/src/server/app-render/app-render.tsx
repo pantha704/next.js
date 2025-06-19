@@ -27,7 +27,7 @@ import type { DeepReadonly } from '../../shared/lib/deep-readonly'
 import type { BaseNextRequest, BaseNextResponse } from '../base-http'
 import type { IncomingHttpHeaders } from 'http'
 
-import React, { type ErrorInfo, type JSX } from 'react'
+import React, { Fragment, type ErrorInfo, type JSX } from 'react'
 
 import RenderResult, {
   type AppPageRenderResultMetadata,
@@ -194,6 +194,7 @@ import {
   trackPendingImport,
   trackPendingModules,
 } from './module-loading/track-module-loading.external'
+import type { GlobalErrorComponent } from '../../client/components/global-error'
 
 export type GetDynamicParamFromSegment = (
   // [slug] / [[slug]] / [...slug]
@@ -794,7 +795,6 @@ async function getRSCPayload(
     query,
     appUsingSizeAdjustment,
     componentMod: {
-      GlobalError,
       createMetadataComponents,
       MetadataBoundary,
       ViewportBoundary,
@@ -873,8 +873,10 @@ async function getRSCPayload(
     </React.Fragment>
   )
 
-  const { styles: globalErrorStyles, modulePath: globalErrorModulePath } =
-    await parseGlobalErrorModuleInfo(tree, ctx)
+  const { GlobalError, styles: globalErrorStyles } = await getGlobalErrorStyles(
+    tree,
+    ctx
+  )
 
   // Assume the head we're rendering contains only partial data if PPR is
   // enabled and this is a statically generated response. This is used by the
@@ -902,7 +904,7 @@ async function getRSCPayload(
       ] as FlightDataPath,
     ],
     m: missingSlots,
-    G: [GlobalError, globalErrorStyles, globalErrorModulePath],
+    G: [GlobalError, globalErrorStyles],
     s: typeof ctx.renderOpts.postponed === 'string',
     S: workStore.isStaticGeneration,
   }
@@ -931,7 +933,6 @@ async function getErrorRSCPayload(
     query,
     appUsingSizeAdjustment,
     componentMod: {
-      GlobalError,
       createMetadataComponents,
       MetadataBoundary,
       ViewportBoundary,
@@ -1002,8 +1003,10 @@ async function getErrorRSCPayload(
     false,
   ]
 
-  const { styles: globalErrorStyles, modulePath: globalErrorModulePath } =
-    await parseGlobalErrorModuleInfo(tree, ctx)
+  const { GlobalError, styles: globalErrorStyles } = await getGlobalErrorStyles(
+    tree,
+    ctx
+  )
 
   const isPossiblyPartialHead =
     workStore.isStaticGeneration &&
@@ -1023,7 +1026,7 @@ async function getErrorRSCPayload(
         isPossiblyPartialHead,
       ] as FlightDataPath,
     ],
-    G: [GlobalError, globalErrorStyles, globalErrorModulePath],
+    G: [GlobalError, globalErrorStyles],
     s: typeof ctx.renderOpts.postponed === 'string',
     S: workStore.isStaticGeneration,
   } satisfies InitialRSCPayload
@@ -3902,19 +3905,20 @@ async function prerenderToStream(
   }
 }
 
-const parseGlobalErrorModuleInfo = async (
+const getGlobalErrorStyles = async (
   tree: LoaderTree,
   ctx: AppRenderContext
 ): Promise<{
+  GlobalError: GlobalErrorComponent
   styles: React.ReactNode | undefined
-  modulePath: string | undefined
 }> => {
   const {
     modules: { 'global-error': globalErrorModule },
   } = parseLoaderTree(tree)
 
+  const GlobalErrorComponent: GlobalErrorComponent =
+    ctx.componentMod.GlobalError
   let globalErrorStyles
-  let globalErrorModulePath: string | undefined
   if (globalErrorModule) {
     const [, styles] = await createComponentStylesAndScripts({
       ctx,
@@ -3927,12 +3931,24 @@ const parseGlobalErrorModuleInfo = async (
   }
   if (ctx.renderOpts.dev) {
     // Fallback to the default global error module path
-    globalErrorModulePath = globalErrorModule?.[1] || 'global-error.js'
+    if (ctx.renderOpts.devtoolSegmentExplorer) {
+      const SegmentViewNode = ctx.componentMod.SegmentViewNode
+      const globalErrorModulePath = globalErrorModule?.[1] || 'global-error.js'
+      globalErrorStyles = (
+        <Fragment key="global-error-styles">
+          {globalErrorStyles}
+          <SegmentViewNode
+            type="global-error"
+            pagePath={globalErrorModulePath}
+          />
+        </Fragment>
+      )
+    }
   }
 
   return {
+    GlobalError: GlobalErrorComponent,
     styles: globalErrorStyles,
-    modulePath: globalErrorModulePath,
   }
 }
 

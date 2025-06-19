@@ -45,11 +45,7 @@ export type AppRouterActionQueue = {
   last: ActionQueueNode | null
 }
 
-export type GlobalErrorState = [
-  GlobalErrorComponent,
-  React.ReactNode,
-  string | undefined,
-]
+export type GlobalErrorState = [GlobalErrorComponent, React.ReactNode]
 
 export type ActionQueueNode = {
   payload: ReducerActions

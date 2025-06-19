@@ -3,7 +3,6 @@ import { dispatcher } from 'next/dist/compiled/next-devtools'
 import { RuntimeErrorHandler } from '../../../client/dev/runtime-error-handler'
 import { ErrorBoundary } from '../../../client/components/error-boundary'
 import DefaultGlobalError from '../../../client/components/global-error'
-import { SegmentViewNode } from './segment-explorer'
 import type { GlobalErrorState } from '../../../client/components/app-router-instance'
 
 type AppDevOverlayErrorBoundaryProps = {
@@ -16,7 +15,7 @@ type AppDevOverlayErrorBoundaryState = {
 }
 
 function ErroredHtml({
-  globalError: [GlobalError, globalErrorStyles, globalErrorModulePath],
+  globalError: [GlobalError, globalErrorStyles],
   error,
 }: {
   globalError: GlobalErrorState
@@ -34,13 +33,7 @@ function ErroredHtml({
   return (
     <ErrorBoundary errorComponent={DefaultGlobalError}>
       {globalErrorStyles}
-      {process.env.__NEXT_DEVTOOL_SEGMENT_EXPLORER && globalErrorModulePath ? (
-        <SegmentViewNode type="global-error" pagePath={globalErrorModulePath}>
-          {globalErrorElement}
-        </SegmentViewNode>
-      ) : (
-        globalErrorElement
-      )}
+      {globalErrorElement}
     </ErrorBoundary>
   )
 }
