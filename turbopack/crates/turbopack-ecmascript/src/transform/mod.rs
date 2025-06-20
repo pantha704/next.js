@@ -219,33 +219,16 @@ impl EcmascriptInputTransform {
                     },
                 );
 
-                let module_program = std::mem::replace(program, Program::Module(Module::dummy()));
-
-                let module_program = if let Program::Script(Script {
-                    span,
-                    mut body,
-                    shebang,
-                }) = module_program
-                {
-                    Program::Module(Module {
-                        span,
-                        body: body.drain(..).map(ModuleItem::Stmt).collect(),
-                        shebang,
-                    })
-                } else {
-                    module_program
-                };
-
                 // Explicit type annotation to ensure that we don't duplicate transforms in the
                 // final binary
-                *program = module_program.apply((
+                program.mutate((
                     preset_env::transform_from_env::<&'_ dyn Comments>(
-                        top_level_mark,
+                        unresolved_mark,
                         Some(&comments),
                         config,
                         Assumptions::default(),
                     ),
-                    inject_helpers(unresolved_mark),
+                    inject_helpers(top_level_mark),
                 ));
             }
             EcmascriptInputTransform::TypeScript {
