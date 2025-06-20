@@ -977,6 +977,7 @@ impl Project {
         Ok(get_edge_compile_time_info(
             self.project_path(),
             this.define_env.edge(),
+            self.env(),
         ))
     }
 
