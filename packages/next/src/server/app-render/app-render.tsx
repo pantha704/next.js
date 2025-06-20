@@ -27,7 +27,7 @@ import type { DeepReadonly } from '../../shared/lib/deep-readonly'
 import type { BaseNextRequest, BaseNextResponse } from '../base-http'
 import type { IncomingHttpHeaders } from 'http'
 
-import React, { Fragment, type ErrorInfo, type JSX } from 'react'
+import React, { type ErrorInfo, type JSX } from 'react'
 
 import RenderResult, {
   type AppPageRenderResultMetadata,
@@ -3935,13 +3935,9 @@ const getGlobalErrorStyles = async (
       const SegmentViewNode = ctx.componentMod.SegmentViewNode
       const globalErrorModulePath = globalErrorModule?.[1] || 'global-error.js'
       globalErrorStyles = (
-        <Fragment key="global-error-styles">
+        <SegmentViewNode type="global-error" pagePath={globalErrorModulePath}>
           {globalErrorStyles}
-          <SegmentViewNode
-            type="global-error"
-            pagePath={globalErrorModulePath}
-          />
-        </Fragment>
+        </SegmentViewNode>
       )
     }
   }
