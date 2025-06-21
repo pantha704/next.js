@@ -223,12 +223,12 @@ impl EcmascriptInputTransform {
                 // final binary
                 program.mutate((
                     preset_env::transform_from_env::<&'_ dyn Comments>(
-                        unresolved_mark,
+                        top_level_mark,
                         Some(&comments),
                         config,
                         Assumptions::default(),
                     ),
-                    inject_helpers(top_level_mark),
+                    inject_helpers(unresolved_mark),
                 ));
             }
             EcmascriptInputTransform::TypeScript {
